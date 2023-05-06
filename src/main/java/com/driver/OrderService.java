@@ -8,6 +8,9 @@ public class OrderService {
     @Autowired
     OrderRepository orderRepository;
 
+    public OrderService(OrderController orderController) {
+
+    }
     public void addOrder(Order order) {
         orderRepository.addOrder(order);
     }
