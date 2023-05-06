@@ -6,9 +6,7 @@ import java.util.*;
 
 @Repository
 public class OrderRepository {
-    public OrderRepository(OrderService orderService) {
 
-    }
 
     Map<String,Order> orderDb=new HashMap<>();
     Map<String,DeliveryPartner> partnerDb=new HashMap<>();

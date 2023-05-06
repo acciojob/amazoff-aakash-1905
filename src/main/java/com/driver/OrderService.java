@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
-    @Autowired
-    OrderRepository orderRepository;
+
+    OrderRepository orderRepository = new OrderRepository();
 
     public OrderService(OrderController orderController) {
 
