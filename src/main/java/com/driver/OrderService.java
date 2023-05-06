@@ -8,9 +8,7 @@ public class OrderService {
 
     OrderRepository orderRepository = new OrderRepository();
 
-    public OrderService(OrderController orderController) {
 
-    }
     public void addOrder(Order order) {
         orderRepository.addOrder(order);
     }
