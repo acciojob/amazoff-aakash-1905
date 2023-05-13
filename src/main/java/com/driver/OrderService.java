@@ -7,8 +7,8 @@ public class OrderService {
 
     OrderRepository orderRepository = new OrderRepository();
 
-    OrderService(){}
-    OrderService(OrderRepository orderRepository){}
+    public OrderService(){}
+    public OrderService(OrderRepository orderRepository){}
 
     public void addOrder(Order order) {
         orderRepository.addOrder(order);

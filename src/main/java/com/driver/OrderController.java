@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("orders")
 public class OrderController {
 
-    OrderController(){}
-    OrderController(OrderService orderService){
+    public OrderController(){}
+    public OrderController(OrderService orderService){
 
     }
     OrderService orderService = new OrderService();

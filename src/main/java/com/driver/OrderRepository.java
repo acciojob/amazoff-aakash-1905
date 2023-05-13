@@ -8,6 +8,7 @@ import java.util.*;
 public class OrderRepository {
 
 
+    public OrderRepository(){}
     Map<String,Order> orderDb=new HashMap<>();
     Map<String,DeliveryPartner> partnerDb=new HashMap<>();
     Map<String,String> orderToPartnerDb=new HashMap<>();
