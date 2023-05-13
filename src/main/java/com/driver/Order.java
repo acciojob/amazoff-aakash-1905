@@ -2,19 +2,20 @@ package com.driver;
 
 public class Order {
 
-
-    // solving again
-    private int id;
+    private String id;
     private int deliveryTime;
 
     public Order(String id, String deliveryTime) {
-
-        // The deliveryTime has to converted from string to int and then stored in the attribute
-        //deliveryTime  = HH*60 + MM
+        this.deliveryTime = TimeConversion.convertTime(deliveryTime);
         this.id = id;
-        int hr=Integer.parseInt(deliveryTime.substring(0,2));
-        int min=Integer.parseInt(deliveryTime.substring(2));
-        this.deliveryTime=(hr*60)+min;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setDeliveryTime(int deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 
     public String getId() {

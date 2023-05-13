@@ -1,56 +1,123 @@
 package com.driver;
-import java.util.*;
+
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class OrderService {
+    public OrderService() {
+    }
 
-    OrderRepository orderRepository = new OrderRepository();
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+    OrderRepository orderRepository=new OrderRepository();
 
-    public OrderService(){}
-    public OrderService(OrderRepository orderRepository){}
+
 
     public void addOrder(Order order) {
         orderRepository.addOrder(order);
     }
 
     public void addPartner(String partnerId) {
-        orderRepository.addPartner(partnerId);
+        DeliveryPartner partner = new DeliveryPartner(partnerId);
+        orderRepository.addPartner(partner);
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
-        orderRepository.addOrderPartnerPair(orderId, partnerId);
+        Optional<Order> orderOpt = orderRepository.getOrderById(orderId);
+        Optional<DeliveryPartner> partnerOpt = orderRepository.getPartnerById(partnerId);
+        // assuming this is not for update
+        if(orderOpt.isPresent() && partnerOpt.isPresent()) {
+            DeliveryPartner p = partnerOpt.get();
+            Integer initialOrders = p.getNumberOfOrders();
+            initialOrders++;
+            p.setNumberOfOrders(initialOrders);
+            orderRepository.addPartner(p);
+            orderRepository.addOrderPartnerPair(orderId, partnerId);
+        }
     }
 
-    public Order getOrderById(String orderId) {
-        return orderRepository.getOrderById(orderId);
+    public Order getOrderById(String orderId) throws RuntimeException{
+        Optional<Order> orderOpt = orderRepository.getOrderById(orderId);
+        if(orderOpt.isPresent()) {
+            return orderOpt.get();
+        }
+        throw new RuntimeException("Order Not Found");
     }
-    public DeliveryPartner getPartnerById(String partnerId){
-        return orderRepository.getPartnerById(partnerId);
+
+    public DeliveryPartner getDeliveryPartnerById(String id){
+        Optional<DeliveryPartner> partnerOpt=orderRepository.getPartnerById(id);
+        return partnerOpt.get();
     }
-    public int getOrderCountByPartnerId(String partnerId){
-        return orderRepository.getOrderCountByPartnerId(partnerId);
+    public Integer getOrderCountForPartner(String partnerId) {
+        Optional<DeliveryPartner> p = orderRepository.getPartnerById(partnerId);
+        if(p.isPresent()) {
+            return p.get().getNumberOfOrders();
+        }
+        return 0;
     }
-    public List<String> getOrdersByPartnerId(String partnerId){
-        return orderRepository.getOrdersByPartnerId(partnerId);
+
+
+    public List<String> getOrdersByPartnerId(String partnerId) {
+
+        return orderRepository.getAllOrderForPartner(partnerId);
     }
-    public List<String> getAllOrders(){
+
+    public List<String> getAllOrders() {
         return orderRepository.getAllOrders();
     }
-    public int getCountOfUnassignedOrders(){
-        return orderRepository.getCountOfUnassignedOrders();
-    }
-    public int getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
-        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(time, partnerId);
-    }
-    public String getLastDeliveryTimeByPartnerId(String partnerId){
-        return orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
-    }
-    public void deletePartnerById(String partnerId){
-        orderRepository.deletePartnerById(partnerId);
-    }
-    public void deleteOrderById(String orderId){
-        orderRepository.deleteOrderById(orderId);
+
+    public Integer getUnassignedOrders() {
+        return orderRepository.getAllOrders().size() - orderRepository.getAssignedOrders().size();
     }
 
+    public Integer getOrdersLeftForPartnerAfterTime(String time, String partnerId) {
+        List<String> orderIds = orderRepository.getAllOrderForPartner(partnerId);
+        int currTime = TimeConversion.convertTime(time);
+        int ordersLeft = 0;
+        for(String orderId: orderIds) {
+            int deliveryTime = orderRepository.getOrderById(orderId).get().getDeliveryTime();
+            if(currTime < deliveryTime) {
+                ordersLeft++;
+            }
+        }
+        return ordersLeft;
+    }
+
+    public String getLastDeliveryTimeForPartner(String partnerId) {
+        List<String> orderIds = orderRepository.getAllOrderForPartner(partnerId);
+        int max = 0;
+        for(String orderId: orderIds) {
+            int deliveryTime = orderRepository.getOrderById(orderId).get().getDeliveryTime();
+            if(deliveryTime>max) {
+                max = deliveryTime;
+            }
+        }
+        return TimeConversion.convertTime(max);
+    }
+
+    public void deletePartner(String partnerId) {
+        List<String> orders = orderRepository.getAllOrderForPartner(partnerId);
+        orderRepository.deletePartner(partnerId);
+        for(String orderId:orders) {
+            orderRepository.removeOrderPartnerMapping(orderId);
+        }
+    }
+
+    public void deleteOrder(String orderId) {
+        String partnerId = orderRepository.getPartnerForOrder(orderId);
+        orderRepository.deleteOrder(orderId);
+        if(Objects.nonNull(partnerId)) {
+            DeliveryPartner p = orderRepository.getPartnerById(partnerId).get();
+            Integer initialOrders = p.getNumberOfOrders();
+            initialOrders--;
+            p.setNumberOfOrders(initialOrders);
+            orderRepository.addPartner(p);
+            orderRepository.removeOrderForPartner(partnerId, orderId);
+        }
+    }
 }
