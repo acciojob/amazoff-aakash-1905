@@ -1,6 +1,5 @@
 package com.driver;
 import java.util.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -8,6 +7,8 @@ public class OrderService {
 
     OrderRepository orderRepository = new OrderRepository();
 
+    OrderService(){}
+    OrderService(OrderRepository orderRepository){}
 
     public void addOrder(Order order) {
         orderRepository.addOrder(order);

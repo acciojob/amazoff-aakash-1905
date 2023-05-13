@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("orders")
 public class OrderController {
 
+    OrderController(){}
+    OrderController(OrderService orderService){
+
+    }
     OrderService orderService = new OrderService();
 
     @PostMapping("/add-order")
