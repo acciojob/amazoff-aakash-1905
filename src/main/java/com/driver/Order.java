@@ -4,7 +4,7 @@ public class Order {
 
 
     // solving again
-    private String id;
+    private int id;
     private int deliveryTime;
 
     public Order(String id, String deliveryTime) {
